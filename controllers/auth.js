@@ -83,3 +83,25 @@ export const logout = async (req, res, next) => {
     next(error);
   }
 };
+
+export const updateSubscription = async (req, res, next) => {
+  try {
+    const { subscription } = req.body;
+    if (!["starter", "pro", "business"].includes(subscription)) {
+      throw new HttpError(400, "Invalid subscription type");
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { subscription },
+      { new: true }
+    );
+    res.json({
+      user: {
+        email: user.email,
+        subscription: user.subscription,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
