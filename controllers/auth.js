@@ -13,7 +13,7 @@ export const register = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      throw new HttpError(409, "Email in use");
+      throw HttpError(409, "Email in use");
     }
     const hashPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({ ...req.body, password: hashPassword });
@@ -34,12 +34,12 @@ export const login = async (req, res, next) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      throw new HttpError(401, "Email or password is wrong");
+      throw HttpError(401, "Email or password is wrong");
     }
 
     const passwordCompare = await bcrypt.compare(password, user.password);
     if (!passwordCompare) {
-      throw new HttpError(401, "Email or password is wrong");
+      throw HttpError(401, "Email or password is wrong");
     }
 
     const { _id: id } = user;
@@ -88,7 +88,7 @@ export const updateSubscription = async (req, res, next) => {
   try {
     const { subscription } = req.body;
     if (!["starter", "pro", "business"].includes(subscription)) {
-      throw new HttpError(400, "Invalid subscription type");
+      throw HttpError(400, "Invalid subscription type");
     }
     const user = await User.findByIdAndUpdate(
       req.user.id,

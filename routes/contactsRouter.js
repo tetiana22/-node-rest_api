@@ -15,14 +15,27 @@ import {
 } from "../models/contacts.js";
 import { isValidId } from "../middlewares/isValidId.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import { checkContactOwnership } from "../middlewares/checkContactsOwnership.js";
 
 const contactsRouter = express.Router();
 
 contactsRouter.get("/", authenticate, getAllContacts);
 
-contactsRouter.get("/:contactId", authenticate, isValidId, getOneContact);
+contactsRouter.get(
+  "/:contactId",
+  authenticate,
+  isValidId,
+  checkContactOwnership,
+  getOneContact
+);
 
-contactsRouter.delete("/:contactId", authenticate, isValidId, deleteContact);
+contactsRouter.delete(
+  "/:contactId",
+  authenticate,
+  isValidId,
+  checkContactOwnership,
+  deleteContact
+);
 
 contactsRouter.post(
   "/",
@@ -35,6 +48,7 @@ contactsRouter.put(
   "/:contactId",
   authenticate,
   isValidId,
+  checkContactOwnership,
   validateBody(updateContactSchema),
   updateContact
 );
@@ -42,6 +56,7 @@ contactsRouter.patch(
   "/:contactId/favorite",
   authenticate,
   isValidId,
+  checkContactOwnership,
   validateBody(favoriteUpdateSchema),
   updateFavorite
 );
