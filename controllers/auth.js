@@ -3,9 +3,22 @@ import HttpError from "../helpers/HttpError.js";
 import { User } from "../models/user.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import gravatar from "gravatar";
+import fs from "fs/promises";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import Jimp from "jimp";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const tmpDir = path.join(__dirname, "../tmp");
+
 dotenv.config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
+const avatarDir = path.join(__dirname, "../", "public", "avatars");
 
 export const register = async (req, res, next) => {
   try {
@@ -16,7 +29,12 @@ export const register = async (req, res, next) => {
       throw HttpError(409, "Email in use");
     }
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ ...req.body, password: hashPassword });
+    const avatarURL = gravatar.url(email);
+    const newUser = await User.create({
+      ...req.body,
+      password: hashPassword,
+      avatarURL,
+    });
     res.status(201).json({
       user: {
         subscription: newUser.subscription,
@@ -101,6 +119,26 @@ export const updateSubscription = async (req, res, next) => {
         subscription: user.subscription,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateAvatars = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { path: tmpUpload, originalname } = req.file;
+    const filename = `${_id}_${originalname}`;
+    const resultUpload = path.join(avatarDir, filename);
+    await fs.rename(tmpUpload, resultUpload);
+    const avatar = await Jimp.read(resultUpload);
+    await avatar.resize(250, 250).writeAsync(resultUpload);
+    const avatarURL = path.join("avatars", filename);
+    await User.findByIdAndUpdate(_id, { avatarURL });
+    res.json({ avatarURL });
+    if (!avatarURL) {
+      throw new HttpError(401, "not avatar");
+    }
   } catch (error) {
     next(error);
   }
