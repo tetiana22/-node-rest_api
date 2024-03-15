@@ -126,6 +126,10 @@ export const updateSubscription = async (req, res, next) => {
 
 export const updateAvatars = async (req, res, next) => {
   try {
+    if (!req.file) {
+      res.status(400).json({ message: "File not uploaded" });
+      return;
+    }
     const { _id } = req.user;
     const { path: tmpUpload, originalname } = req.file;
     const filename = `${_id}_${originalname}`;
