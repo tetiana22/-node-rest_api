@@ -39,7 +39,7 @@ export const register = async (req, res, next) => {
       ...req.body,
       password: hashPassword,
       avatarURL,
-      verificationToken: verificationToken,
+      verificationToken,
     });
     const verifyEmail = {
       to: email,
@@ -167,9 +167,9 @@ export const updateAvatars = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
   try {
     const { verificationToken } = req.params;
-    const user = await User.findOne(verificationToken);
+    const user = await User.findOne({ verificationToken });
     if (!user) {
-      throw HttpError(401, "Email not found");
+      throw HttpError(401, "Email not found po");
     }
     await User.findByIdAndUpdate(user._id, {
       verify: true,

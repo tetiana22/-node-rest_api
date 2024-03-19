@@ -20,8 +20,8 @@ import { upload } from "../middlewares/upload.js";
 
 const authRouter = express.Router();
 authRouter.post("/register", validateBody(signupSchema), register);
-authRouter.get("/verify/:verificationCode", verifyEmail);
-authRouter.post("/verify/", validateBody(verifyEmailSchema), resendVerifyEmail);
+authRouter.get("/verify/:verificationToken", verifyEmail);
+authRouter.post("/verify", validateBody(verifyEmailSchema), resendVerifyEmail);
 authRouter.post("/login", validateBody(loginSchema), login);
 authRouter.get("/current", authenticate, getCurrent);
 authRouter.post("/logout", authenticate, logout);
