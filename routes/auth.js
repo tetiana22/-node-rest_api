@@ -1,6 +1,10 @@
 import express from "express";
 import validateBody from "../middlewares/validateBody.js";
-import { loginSchema, signupSchema } from "../models/user.js";
+import {
+  loginSchema,
+  signupSchema,
+  verifyEmailSchema,
+} from "../models/user.js";
 import {
   register,
   login,
@@ -8,12 +12,16 @@ import {
   logout,
   updateSubscription,
   updateAvatars,
+  verifyEmail,
+  resendVerifyEmail,
 } from "../controllers/auth.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import { upload } from "../middlewares/upload.js";
 
 const authRouter = express.Router();
 authRouter.post("/register", validateBody(signupSchema), register);
+authRouter.get("/verify/:verificationToken", verifyEmail);
+authRouter.post("/verify", validateBody(verifyEmailSchema), resendVerifyEmail);
 authRouter.post("/login", validateBody(loginSchema), login);
 authRouter.get("/current", authenticate, getCurrent);
 authRouter.post("/logout", authenticate, logout);
@@ -24,4 +32,5 @@ authRouter.patch(
   upload.single("avatar"),
   updateAvatars
 );
+
 export default authRouter;
